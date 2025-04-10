@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>🎲 بازی تاس دو نفره</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f9f9f9, #d0e6ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .players {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .player {
+            flex: 1;
+            background: #f1f1f1;
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0 10px;
+            transition: 0.3s;
+        }
+
+        .player--active {
+            background: #e0f7ff;
+            box-shadow: 0 0 10px #00bfff;
+        }
+
+        .player--winner {
+            background: #c8ffcb;
+            color: #1b7e1b;
+            font-weight: bold;
+        }
+
+        .score {
+            font-size: 2rem;
+        }
+
+        .current {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #4e88ff;
+            color: white;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #3a6fe0;
+        }
+
+        .dice {
+            display: block;
+            margin: 1rem auto;
+            width: 100px;
+            height: 100px;
+            transition: transform 0.4s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .players {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎲 بازی تاس دو نفره</h1>
+
+    <div class="players">
+        <div class="player player--0 player--active">
+            <div>بازیکن ۱</div>
+            <div class="score" id="score-one">0</div>
+            <div class="current">امتیاز جاری: <span id="curent-score-one">0</span></div>
+        </div>
+        <div class="player player--1">
+            <div>بازیکن ۲</div>
+            <div class="score" id="score-two">0</div>
+            <div class="current">امتیاز جاری: <span id="curent-score-two">0</span></div>
+        </div>
+    </div>
+
+    <img src="" class="dice hidden" alt="تاس">
+
+    <div class="controls">
+        <button class="btn--roll">🎲 انداختن تاس</button>
+        <button class="btn--hold">✅ نگه‌داشتن</button>
+        <button class="btn--new">🔄 بازی جدید</button>
+    </div>
+</div>
+
+<script>
+    const diceElemant = document.getElementsByClassName('dice')[0];
+    const scorePlayerOne = document.getElementById('score-one');
+    const scorePlayerTwo = document.getElementById('score-two');
+    const curentScorePlayerOne = document.getElementById('curent-score-one');
+    const curentScorePlayerTwo = document.getElementById('curent-score-two');
+
+    let currentScore = 0;
+    let activePlayer = 0;
+    let isPlaying = true;
+    let score = [0, 0];
+
+    const updateCurrentScore = () => {
+        document.getElementById(`curent-score-${activePlayer === 0 ? "one" : "two"}`).textContent = currentScore;
+    };
+
+    const playerSwitch = () => {
+        currentScore = 0;
+        updateCurrentScore();
+        activePlayer = activePlayer === 0 ? 1 : 0;
+        document.querySelector('.player--0').classList.toggle('player--active');
+        document.querySelector('.player--1').classList.toggle('player--active');
+    };
+
+    document.querySelector('.btn--roll').addEventListener('click', () => {
+        if (isPlaying) {
+            const dice = Math.floor(Math.random() * 6) + 1;
+            diceElemant.classList.remove('hidden');
+            diceElemant.src = `https://raw.githubusercontent.com/AmirhosseinMes/Js-Pig-Game/main/dice-${dice}.png`;
+            diceElemant.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+            if (dice !== 1) {
+                currentScore += dice;
+                updateCurrentScore();
+            } else {
+                playerSwitch();
+            }
+        }
+    });
+
+    document.querySelector('.btn--hold').addEventListener('click', () => {
+        if (isPlaying) {
+            score[activePlayer] += currentScore;
+            document.getElementById(`score-${activePlayer === 0 ? "one" : "two"}`).textContent = score[activePlayer];
+
+            if (score[activePlayer] >= 20) {
+                document.querySelector(`.player--${activePlayer}`).classList.add('player--winner');
+                isPlaying = false;
+            } else {
+                playerSwitch();
+            }
+        }
+    });
+
+    document.querySelector('.btn--new').addEventListener('click', () => {
+        currentScore = 0;
+        activePlayer = 0;
+        isPlaying = true;
+        score = [0, 0];
+
+        scorePlayerOne.textContent = '0';
+        scorePlayerTwo.textContent = '0';
+        curentScorePlayerOne.textContent = '0';
+        curentScorePlayerTwo.textContent = '0';
+
+        diceElemant.classList.add('hidden');
+
+        document.querySelector('.player--0').classList.remove('player--winner');
+        document.querySelector('.player--1').classList.remove('player--winner');
+        document.querySelector('.player--0').classList.add('player--active');
+        document.querySelector('.player--1').classList.remove('player--active');
+    });
+</script>
+</body>
+</html>

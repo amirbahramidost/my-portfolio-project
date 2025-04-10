@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بازی حدس عدد</title>
+
+    <!-- لینک فونت -->
+    <link
+            href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
+            rel="stylesheet"
+            type="text/css"
+    />
+
+    <!-- لینک بوت‌استرپ -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" />
+
+    <style>
+        body {
+            font-family: Vazirmatn, sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        input {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        #txt {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        button {
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .counter-box {
+            font-size: 1.3rem;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body dir="rtl">
+<div class="container">
+    <h2 class="mb-3">🎯 بازی حدس اعداد</h2>
+
+    <form>
+        <div class="mb-3">
+            <input type="number" class="form-control" id="Input" placeholder="عدد بین ۱ تا ۲۰ را حدس بزنید" />
+        </div>
+        <button type="button" class="btn btn-light text-dark fw-bold" id="btn">🔍 حدس بزن</button>
+    </form>
+
+    <div class="counter-box mt-3">
+        تعداد حدس‌های باقی‌مانده: <span id="counter">5</span>
+    </div>
+
+    <div id="txt" class="mt-3"></div>
+
+    <button type="button" onclick="run()" class="btn btn-success d-none mt-3" id="runBtn">🔄 شروع مجدد</button>
+</div>
+
+<script>
+    function getRandomInt(max) {
+    return Math.floor(Math.random() * max) + 1; // تولید عدد بین 1 تا max
+}
+
+const randomNumber = getRandomInt(20);
+console.log("عدد تصادفی:", randomNumber); // برای تست مقدار تصادفی در کنسول نمایش داده شود
+
+let counter = 0;
+const maxAttempts = 5;
+
+const btn = document.getElementById("btn");
+const input = document.getElementById("Input");
+const txt = document.getElementById("txt");
+const userCounterElement = document.getElementById("counter");
+const form = document.querySelector("form");
+const heading = document.querySelector("h2");
+const runBtn = document.getElementById("runBtn");
+
+userCounterElement.innerHTML = maxAttempts;
+
+btn.addEventListener("click", () => {
+    let inputNumber = Number(input.value.trim());
+
+    // بررسی خالی نبودن مقدار ورودی
+    if (isNaN(inputNumber) || inputNumber < 1 || inputNumber > 20) {
+        updateText("لطفاً یک عدد بین 1 تا 20 وارد کنید!", "orange");
+        return;
+    }
+
+    if (counter < maxAttempts) {
+        if (inputNumber > randomNumber) {
+            updateText("عدد کوچکتر است!", "gray");
+        } else if (inputNumber < randomNumber) {
+            updateText("عدد بزرگتر است!", "blue");
+        } else {
+            updateText("🎉 تبریک، شما برنده شدید!", "green", "text-bg-success");
+            endGame();
+            return;
+        }
+
+        counter++;
+        userCounterElement.innerHTML = maxAttempts - counter;
+    }
+
+    if (counter === maxAttempts) {
+        updateText("😞 شما بازنده شدید", "red", "text-bg-danger");
+        endGame();
+    }
+});
+
+function updateText(message, color, extraClass = "") {
+    txt.innerHTML = message;
+    txt.style.color = color;
+    txt.className = `rounded p-2 ${extraClass}`;
+}
+
+function endGame() {
+    form.classList.add("d-none");
+    heading.classList.add("d-none");
+    runBtn.classList.remove("d-none");
+}
+
+function run() {
+    location.reload();
+}
+</script>
+</body>
+</html>

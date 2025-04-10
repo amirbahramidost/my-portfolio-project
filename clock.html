@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ساعت دیجیتال و آنالوگ با تقویم شمسی و آب‌وهوا</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            direction: rtl;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .clock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .digital-clock {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .analog-clock {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 5px solid #333;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .hand {
+            position: absolute;
+            background: #333;
+            transform-origin: bottom center;
+            transform: translateX(-50%);
+        }
+
+        .hour {
+            height: 40px;
+            width: 5px;
+            top: 30px;
+            left: 50%;
+        }
+
+        .minute {
+            height: 55px;
+            width: 3px;
+            top: 15px;
+            left: 50%;
+        }
+
+        .second {
+            height: 65px;
+            width: 2px;
+            top: 5px;
+            left: 50%;
+            background: red;
+        }
+
+        .calendar, .weather {
+            font-size: 1.2rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="clock">
+        <div id="digital-clock" class="digital-clock">00:00:00</div>
+        <div class="analog-clock">
+            <div id="hour" class="hand hour"></div>
+            <div id="minute" class="hand minute"></div>
+            <div id="second" class="hand second"></div>
+        </div>
+    </div>
+    <div id="calendar" class="calendar">تقویم شمسی: ---</div>
+    <div id="weather" class="weather">در حال بارگذاری اطلاعات هواشناسی...</div>
+</div>
+
+<script>
+    function updateDigitalClock() {
+        const date = new Date();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let seconds = date.getSeconds();
+
+        if (hours < 10) hours = `0${hours}`;
+        if (minutes < 10) minutes = `0${minutes}`;
+        if (seconds < 10) seconds = `0${seconds}`;
+
+        document.getElementById("digital-clock").textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateAnalogClock() {
+        const date = new Date();
+        const hourHand = document.getElementById("hour");
+        const minuteHand = document.getElementById("minute");
+        const secondHand = document.getElementById("second");
+
+        const hours = date.getHours() % 12;
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+
+        const hourDeg = (hours * 30) + (minutes / 2);
+        const minuteDeg = minutes * 6;
+        const secondDeg = seconds * 6;
+
+        hourHand.style.transform = `rotate(${hourDeg}deg)`;
+        minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+        secondHand.style.transform = `rotate(${secondDeg}deg)`;
+    }
+
+    function updateCalendar() {
+        const persianDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }).format(new Date());
+
+        document.getElementById("calendar").textContent = `تقویم شمسی: ${persianDate}`;
+    }
+
+    async function fetchWeather() {
+        try {
+            const response = await fetch('https://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q=Tehran&lang=fa');
+            const data = await response.json();
+            const { temp_c, condition } = data.current;
+            document.getElementById("weather").textContent = `دمای فعلی: ${temp_c}°C, وضعیت: ${condition.text}`;
+        } catch (error) {
+            document.getElementById("weather").textContent = "خطا در دریافت اطلاعات هواشناسی";
+        }
+    }
+
+    function updateClockAndCalendar() {
+        updateDigitalClock();
+        updateAnalogClock();
+        updateCalendar();
+        fetchWeather();
+    }
+
+    setInterval(updateClockAndCalendar, 1000);
+</script>
+
+</body>
+</html>

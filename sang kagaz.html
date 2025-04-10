@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>بازی سنگ، کاغذ، قیچی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f9f9f9, #e0eaff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        .game-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #555;
+        }
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+        }
+        .user-choices, .cpu-choices {
+            display: flex;
+            gap: 10px;
+        }
+        img.choice, img.cpu-img {
+            width: 80px;
+            height: 80px;
+            padding: 10px;
+            border-radius: 15px;
+            background: #f1f1f1;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        img.choice:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .hidden {
+            display: none;
+        }
+        #result-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .refresh-btn {
+            padding: 10px 20px;
+            background: #4e88ff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .refresh-btn:hover {
+            background: #3a6fe0;
+        }
+        .history {
+            margin-top: 2rem;
+            background: #f8f8f8;
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: right;
+        }
+        .history h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        .history ul {
+            list-style: none;
+            padding: 0;
+        }
+        .history li {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 500px) {
+            img.choice, img.cpu-img {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="game-container">
+    <h1>بازی سنگ، کاغذ، قیچی ✊📄✌️</h1>
+
+    <section class="scoreboard">
+        <div>امتیاز شما: <span id="user-Point">0</span></div>
+        <div>امتیاز CPU: <span id="cpu-point">0</span></div>
+    </section>
+
+    <section class="choices">
+        <div class="user-choices">
+            <img src="https://img.icons8.com/emoji/96/rock-emoji.png" class="choice" alt="سنگ" data-choice="0">
+            <img src="https://img.icons8.com/emoji/96/page-facing-up-emoji.png" class="choice" alt="کاغذ" data-choice="1">
+            <img src="https://img.icons8.com/emoji/96/scissors-emoji.png" class="choice" alt="قیچی" data-choice="2">
+        </div>
+    </section>
+
+    <section class="cpu-choices">
+        <img src="https://img.icons8.com/emoji/96/rock-emoji.png" class="cpu-img hidden" alt="سنگ CPU">
+        <img src="https://img.icons8.com/emoji/96/page-facing-up-emoji.png" class="cpu-img hidden" alt="کاغذ CPU">
+        <img src="https://img.icons8.com/emoji/96/scissors-emoji.png" class="cpu-img hidden" alt="قیچی CPU">
+    </section>
+
+    <section class="result-message">
+        <p id="result-text">یک گزینه انتخاب کنید...</p>
+    </section>
+
+    <button class="refresh-btn">بازی دوباره</button>
+
+    <section class="history">
+        <h2>تاریخچه بازی</h2>
+        <ul id="history-list"></ul>
+    </section>
+</main>
+
+<script>
+    let images = document.querySelectorAll(".choice");
+let cpuImages = document.querySelectorAll(".cpu-img");
+let resultText = document.querySelector("#result-text");
+let historyList = document.querySelector("#history-list");
+
+for (let i = 0; i < images.length; i++) {
+    images[i].addEventListener("click", () => {
+        hiddenSelect(i);
+        let randomCpu = Math.floor((Math.random() * 10) / 4);
+        cpuImages[randomCpu].classList.remove("hidden");
+        gameOveLogic(i, randomCpu);
+    });
+}
+
+function hiddenSelect(i) {
+    for (let j = 0; j < images.length; j++) {
+        if (j !== i) {
+            images[j].classList.add("hidden");
+        }
+    }
+}
+
+const refreshFunction = () => {
+    for (let i = 0; i < images.length; i++) {
+        images[i].classList.remove("hidden");
+        cpuImages[i].classList.add("hidden");
+    }
+    resultText.textContent = "یک گزینه انتخاب کنید...";
+    resultText.className = "";
+};
+
+document.querySelector(".refresh-btn").addEventListener("click", refreshFunction);
+document.addEventListener("keydown", refreshFunction);
+
+function gameOveLogic(user, cpu) {
+    const userPoint = document.querySelector("#user-Point");
+    const cpuPoint = document.querySelector("#cpu-point");
+
+    if (user === cpu) {
+        resultText.textContent = "مساوی!";
+        resultText.className = "result-draw";
+        addToHistory("مساوی");
+        return;
+    }
+
+    const winMap = {
+        0: 2, // سنگ > قیچی
+        1: 0, // کاغذ > سنگ
+        2: 1  // قیچی > کاغذ
+    };
+
+    if (winMap[user] === cpu) {
+        userPoint.textContent = Number(userPoint.textContent) + 1;
+        resultText.textContent = "شما بردید!";
+        resultText.className = "result-win";
+        addToHistory("برد");
+    } else {
+        cpuPoint.textContent = Number(cpuPoint.textContent) + 1;
+        resultText.textContent = "شما باختید!";
+        resultText.className = "result-lose";
+        addToHistory("باخت");
+    }
+}
+
+function addToHistory(result) {
+    const li = document.createElement("li");
+    const now = new Date().toLocaleTimeString("fa-IR");
+    li.textContent = `نتیجه: ${result} - ${now}`;
+    historyList.prepend(li);
+}
+</script>
+</body>
+</html>
